@@ -2,11 +2,13 @@
 
 namespace App\DataFixtures;
 
+use Faker\Factory;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-class AppFixtures extends Fixture
+class UserFixtures extends Fixture implements DependentFixtureInterface
 {
 
     private $password;
@@ -15,14 +17,23 @@ class AppFixtures extends Fixture
         $this->password = $encoder;
     }
 
+    
+
     public function load(ObjectManager $manager)
     {
 
         // $product = new Product();
         // $manager->persist($product);
-        // $use
-
-
+        $faker = Factory::create('fr_FR');
+        
+        
         $manager->flush();
+    }
+
+    public function getDependencies()
+    {
+        return array(
+            ProfilFixtures::class,
+        );
     }
 }

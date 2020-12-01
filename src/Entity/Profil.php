@@ -2,14 +2,22 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\ProfilRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ProfilRepository;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ * routePrefix="/admin",
+ * attributes={
+ *      "security"= "is_granted('ROLE_Admin')",
+ *      "security_message"="Seul l'admin a acces à cette ressource"},
+ * collectionOperations={"GET","POST"},
+ * itemOperations={"GET","PUT","DELETE"}
+ * )
  * @ORM\Entity(repositoryClass=ProfilRepository::class)
  */
 class Profil
@@ -19,7 +27,7 @@ class Profil
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -28,6 +36,7 @@ class Profil
 
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="profil")
+     * @ApiSubresource()
      */
     private $user;
 
