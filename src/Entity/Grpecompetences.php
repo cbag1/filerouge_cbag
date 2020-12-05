@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ApiResource(
- * * routePrefix="/admin",
+ * routePrefix="/admin",
  * attributes={
  *      "security"= "is_granted('ROLE_Admin')",
  *      "security_message"="Vous n'avez pas acces à cette ressource"
@@ -38,11 +38,7 @@ class Grpecompetences
      */
     private $id;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Competences::class, mappedBy="grpecompetences")
-     */
-    private $competences;
-
+    
     /**
      * @ORM\Column(type="string", length=255)
      */
@@ -52,6 +48,16 @@ class Grpecompetences
      * @ORM\Column(type="string", length=255)
      */
     private $description;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Competences::class, inversedBy="grpecompetences")
+     */
+    private $competences;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $archive;
 
     public function __construct()
     {
@@ -63,35 +69,6 @@ class Grpecompetences
         return $this->id;
     }
 
-    /**
-     * @return Collection|Competences[]
-     */
-    public function getCompetences(): Collection
-    {
-        return $this->competences;
-    }
-
-    public function addCompetence(Competences $competence): self
-    {
-        if (!$this->competences->contains($competence)) {
-            $this->competences[] = $competence;
-            $competence->setGrpecompetences($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCompetence(Competences $competence): self
-    {
-        if ($this->competences->removeElement($competence)) {
-            // set the owning side to null (unless already changed)
-            if ($competence->getGrpecompetences() === $this) {
-                $competence->setGrpecompetences(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function getLibelle(): ?string
     {
@@ -113,6 +90,42 @@ class Grpecompetences
     public function setDescription(string $description): self
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    /**ff
+     * @return Collection|Competences[]
+     */
+    public function getCompetences(): Collection
+    {
+        return $this->competences;
+    }
+
+    public function addCompetence(Competences $competence): self
+    {
+        if (!$this->competences->contains($competence)) {
+            $this->competences[] = $competence;
+        }
+
+        return $this;
+    }
+
+    public function removeCompetence(Competences $competence): self
+    {
+        $this->competences->removeElement($competence);
+
+        return $this;
+    }
+
+    public function getArchive(): ?bool
+    {
+        return $this->archive;
+    }
+
+    public function setArchive(bool $archive): self
+    {
+        $this->archive = $archive;
 
         return $this;
     }

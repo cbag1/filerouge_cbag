@@ -41,7 +41,7 @@ class CompetencesFixtures extends Fixture implements DependentFixtureInterface
         $tag=new Competences();
         $tag->setlibelle("libelle 1");
         $tag->setDescription("Libelle for Competences");
-        $tag->setGrpecompetences($grpcompt);
+        // $tag->setGrpecompetences($grpcompt);
        
         $manager->persist($tag);
 

@@ -10,12 +10,16 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use App\Services\UserServices;
 
 class UserController extends AbstractController
 {
 
 
+
+
+
+    
     /**
      * @Route(
      *  name="add_user",
@@ -34,14 +38,16 @@ class UserController extends AbstractController
         SerializerInterface $serializer,
         ValidatorInterface $validator,
         EntityManagerInterface $manager,
-        UserPasswordEncoderInterface $encoder
+        UserServices $serviceuser
     ) {
-        dd('fdfdf');
-        //$test=$request->getContent();
-        // $test=$request->query->get('username');
+      
+        // $test=$request->getContent();
+        // $test=$request->request->all();
         //$d="test";
-        $test = $request->request->all();
-        // $user=$request->request->all();
+    //    $test = $request->request->all();
+        $user=$request->request->all();
+        $serviceuser->ajout($manager,$validator,$request,$serializer,$user,"App\Entity\User");
+        return $this->json("success", Response::HTTP_CREATED);
         // $user = $request->request->all();
        //dd($test);
         // dd($test);

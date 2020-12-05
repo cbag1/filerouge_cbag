@@ -2,13 +2,20 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\CompetencesRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\CompetencesRepository;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *  * routePrefix="/admin",
+ *  normalizationContext={"groups"={"competences:read"}},
+ *  denormalizationContext={"groups"={"competences:write"}},
+ * routePrefix="/admin",
  * attributes={
  *      "security"= "is_granted('ROLE_Admin')",
  *      "security_message"="Vous n'avez pas acces à cette ressource"
@@ -28,23 +35,46 @@ class Competences
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"competences:read","competences:write"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"competences:read","competences:write"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"competences:read","competences:write"})
      */
     private $description;
 
+
     /**
-     * @ORM\ManyToOne(targetEntity=Grpecompetences::class, inversedBy="competences")
+     * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="competences", cascade={"persist"})
+     *  @ApiSubresource
+     * @Assert\Count(
+     *      min = 3,
+     *      max = 3,
+     *      maxMessage = "Vous devez entré 3 Niveaux pour permettre l'ajout d'une competenee",
+     * )
+     *  @Groups({"competences:read", "competences:write"})
+     */
+     
+    private $niveaux;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Grpecompetences::class, mappedBy="competences")
      */
     private $grpecompetences;
+
+    public function __construct()
+    {
+        $this->niveaux = new ArrayCollection();
+        $this->grpecompetences = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -75,14 +105,60 @@ class Competences
         return $this;
     }
 
-    public function getGrpecompetences(): ?Grpecompetences
+ 
+    /**
+     * @return Collection|Niveau[]
+     */
+    public function getNiveaux(): Collection
+    {
+        return $this->niveaux;
+    }
+
+    public function addNiveau(Niveau $niveau): self
+    {
+        if (!$this->niveaux->contains($niveau)) {
+            $this->niveaux[] = $niveau;
+            $niveau->setCompetences($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNiveau(Niveau $niveau): self
+    {
+        if ($this->niveaux->removeElement($niveau)) {
+            // set the owning side to null (unless already changed)
+            if ($niveau->getCompetences() === $this) {
+                $niveau->setCompetences(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Grpecompetences[]
+     */
+    public function getGrpecompetences(): Collection
     {
         return $this->grpecompetences;
     }
 
-    public function setGrpecompetences(?Grpecompetences $grpecompetences): self
+    public function addGrpecompetence(Grpecompetences $grpecompetence): self
     {
-        $this->grpecompetences = $grpecompetences;
+        if (!$this->grpecompetences->contains($grpecompetence)) {
+            $this->grpecompetences[] = $grpecompetence;
+            $grpecompetence->addCompetence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGrpecompetence(Grpecompetences $grpecompetence): self
+    {
+        if ($this->grpecompetences->removeElement($grpecompetence)) {
+            $grpecompetence->removeCompetence($this);
+        }
 
         return $this;
     }

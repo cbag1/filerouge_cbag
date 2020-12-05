@@ -24,6 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
  *              "security"="is_granted('ROLE_Admin') or is_granted('ROLE_Formateur') or is_granted('ROLE_CM') ",
  *              "security_message"="Seul l'admin peut ajouter cette ressource",
  *              "method"="GET",
+ *              
  *              "path"="/apprenants"
  *            }
  * 
@@ -69,6 +70,11 @@ class Apprenant extends User
      */
     private $statut;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Groupe::class, inversedBy="apprenants")
+     */
+    private $groupe;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -106,6 +112,18 @@ class Apprenant extends User
     public function setStatut(string $statut): self
     {
         $this->statut = $statut;
+
+        return $this;
+    }
+
+    public function getGroupe(): ?Groupe
+    {
+        return $this->groupe;
+    }
+
+    public function setGroupe(?Groupe $groupe): self
+    {
+        $this->groupe = $groupe;
 
         return $this;
     }
